@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Seleksi Asisten Praktikum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ijo: {
+                            light: '#d1fae5',
+                            DEFAULT: '#10b981', // Emerald 500
+                            dark: '#047857', // Emerald 700
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Sedikit custom CSS agar slider / range input terlihat lucu dan senada */
+        input[type=range] {
+            accent-color: #10b981;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center">
+            <h1 class="text-3xl font-extrabold text-ijo-dark mb-2">Seleksi Asisten Praktikum</h1>
+            <p class="text-slate-500">Sistem Pendukung Keputusan & Analisis Karakteristik Praktikan</p>
+        </div>
+
+        <div class="bg-ijo-light rounded-2xl p-6 border border-ijo border-opacity-20 shadow-sm">
+            <h2 class="text-xl font-bold text-ijo-dark mb-4 flex items-center gap-2">
+                Cara Pakai Aplikasi Ini:
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-ijo-dark">
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                    <span class="text-2xl block mb-2">📄</span>
+                    <strong>1. Siapkan Data</strong><br>Pastikan CSV punya kolom Nama, NIM, Modul 1-13, UTP, UAP, Keaktifan.
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                    <span class="text-2xl block mb-2">☁️</span>
+                    <strong>2. Upload CSV</strong><br>Masukkan file rekap nilai praktikan ke kotak yang tersedia.
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                    <span class="text-2xl block mb-2">🎚️</span>
+                    <strong>3. Atur Bobot</strong><br>Geser slider persentase kriteria sesuai dengan kebijakan dosen.
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                    <span class="text-2xl block mb-2">🚀</span>
+                    <strong>4. Proses!</strong><br>Klik tombol proses dan lihat hasil perankingan cerdasnya.
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 space-y-6">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <label class="block text-sm font-bold text-slate-700 mb-3">Upload File Nilai (.csv)</label>
+                    <div class="border-2 border-dashed border-ijo rounded-xl p-4 text-center hover:bg-ijo-light transition-colors cursor-pointer relative">
+                        <input type="file" id="csvFile" accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <span class="text-3xl block mb-2">📁</span>
+                        <p class="text-sm font-medium text-ijo-dark" id="fileNameDisplay">Pilih file CSV...</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-700 mb-4">Pengaturan Bobot (%)</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label class="font-medium text-slate-600">Rata-rata Modul</label>
+                                <span id="valModul" class="font-bold text-ijo">50%</span>
+                            </div>
+                            <input type="range" id="wModul" min="0" max="100" value="50" oninput="updateTotal()" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label class="font-medium text-slate-600">Nilai UTP</label>
+                                <span id="valUTP" class="font-bold text-ijo">20%</span>
+                            </div>
+                            <input type="range" id="wUTP" min="0" max="100" value="20" oninput="updateTotal()" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label class="font-medium text-slate-600">Nilai UAP</label>
+                                <span id="valUAP" class="font-bold text-ijo">20%</span>
+                            </div>
+                            <input type="range" id="wUAP" min="0" max="100" value="20" oninput="updateTotal()" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <label class="font-medium text-slate-600">Keaktifan</label>
+                                <span id="valKeaktifan" class="font-bold text-ijo">10%</span>
+                            </div>
+                            <input type="range" id="wKeaktifan" min="0" max="100" value="10" oninput="updateTotal()" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+                        <span class="text-sm font-medium text-slate-500">Total Bobot:</span>
+                        <span id="totalText" class="font-bold text-lg text-ijo">100%</span>
+                    </div>
+
+                    <button onclick="prosesCSV()" id="btnProses" class="w-full mt-4 bg-ijo hover:bg-ijo-dark text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md disabled:bg-slate-300 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                        Proses Data Sekarang
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div id="insightArea" class="hidden bg-white border-l-4 border-ijo p-5 rounded-r-2xl shadow-sm text-slate-700 text-sm font-medium leading-relaxed">
+                    </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-700 text-lg">🏆 Papan Peringkat</h3>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="tabelHasil" style="display: none;">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                                    <th class="p-4 font-bold rounded-tl-xl">Rank</th>
+                                    <th class="p-4 font-bold">NIM</th>
+                                    <th class="p-4 font-bold">Nama Praktikan</th>
+                                    <th class="p-4 font-bold text-center">Skor SPK</th>
+                                    <th class="p-4 font-bold text-center rounded-tr-xl">Karakteristik</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bodyTabel" class="text-sm divide-y divide-slate-100">
+                                </tbody>
+                        </table>
+                        
+                        <div id="emptyState" class="p-12 text-center text-slate-400">
+                            <p>Belum ada data yang diproses. Silakan upload dan atur bobot di samping.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update nama file saat dipilih
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            let fileName = e.target.files[0] ? e.target.files[0].name : "Pilih file CSV...";
+            document.getElementById('fileNameDisplay').innerText = fileName;
+            document.getElementById('fileNameDisplay').classList.replace('text-ijo-dark', 'text-slate-800');
+        });
+
+        function updateTotal() {
+            let mod = parseInt(document.getElementById('wModul').value);
+            let utp = parseInt(document.getElementById('wUTP').value);
+            let uap = parseInt(document.getElementById('wUAP').value);
+            let aktif = parseInt(document.getElementById('wKeaktifan').value);
+            
+            document.getElementById('valModul').innerText = mod + "%";
+            document.getElementById('valUTP').innerText = utp + "%";
+            document.getElementById('valUAP').innerText = uap + "%";
+            document.getElementById('valKeaktifan').innerText = aktif + "%";
+            
+            let total = mod + utp + uap + aktif;
+            let totalText = document.getElementById('totalText');
+            let btn = document.getElementById('btnProses');
+
+            if (total === 100) {
+                totalText.innerText = "100%";
+                totalText.className = "font-bold text-lg text-ijo";
+                btn.disabled = false;
+                btn.innerHTML = "Proses Data Sekarang";
+            } else {
+                totalText.innerText = total + "% (Harus 100%)";
+                totalText.className = "font-bold text-lg text-red-500";
+                btn.disabled = true;
+                btn.innerHTML = "⚠️ Cek Total Bobot";
+            }
+        }
+
+        async function prosesCSV() {
+            const fileInput = document.getElementById('csvFile').files[0];
+            if (!fileInput) return alert("Ups! Lupa masukin file CSV ya? 📁");
+
+            const btn = document.getElementById('btnProses');
+            btn.innerHTML = "<span>⏳</span> Memproses...";
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append("file", fileInput);
+            formData.append("w_modul", document.getElementById('wModul').value / 100);
+            formData.append("w_utp", document.getElementById('wUTP').value / 100);
+            formData.append("w_uap", document.getElementById('wUAP').value / 100);
+            formData.append("w_keaktifan", document.getElementById('wKeaktifan').value / 100);
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/proses-otomatis/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Gagal terhubung ke server backend.");
+                const result = await response.json();
+
+                // Tampilkan Insight
+                const insightEl = document.getElementById('insightArea');
+                insightEl.innerHTML = `<strong>💡 Insight Data Mining:</strong> <br> ${result.insight}`;
+                insightEl.classList.remove('hidden');
+
+                // Sembunyikan empty state, munculkan tabel
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('tabelHasil').style.display = 'table';
+
+                const tbody = document.getElementById('bodyTabel');
+                tbody.innerHTML = ""; 
+                
+                // Warna pastel imut untuk cluster Tailwind (Green, Yellow, Blue pastel)
+                const clusterStyles = [
+                    "bg-green-100 text-green-800", 
+                    "bg-amber-100 text-amber-800", 
+                    "bg-blue-100 text-blue-800"
+                ]; 
+                const clusterEmojis = ["🌟", "🔥", "💡"];
+
+                result.data.forEach((mhs, index) => {
+                    let style = clusterStyles[mhs.Cluster] || "bg-slate-100 text-slate-800";
+                    let emoji = clusterEmojis[mhs.Cluster] || "🎯";
+
+                    // Highlight ranking 1-3
+                    let rankDisplay = index + 1;
+                    if(index === 0) rankDisplay = "🥇 1";
+                    else if(index === 1) rankDisplay = "🥈 2";
+                    else if(index === 2) rankDisplay = "🥉 3";
+
+                    tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 font-bold text-slate-700">${rankDisplay}</td>
+                        <td class="p-4 text-slate-500 font-mono text-xs">${mhs.NIM}</td>
+                        <td class="p-4 font-medium text-slate-800">${mhs.Nama}</td>
+                        <td class="p-4 text-center font-bold text-ijo-dark">${mhs.Skor_Akhir.toFixed(3)}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${style}">
+                                ${emoji} Tipe ${mhs.Cluster + 1}
+                            </span>
+                        </td>
+                    </tr>`;
+                });
+
+            } catch (error) {
+                alert("Error: " + error.message);
+            } finally {
+                btn.innerHTML = "Proses Data Sekarang";
+                btn.disabled = false;
+            }
+        }
+        
+        updateTotal();
+    </script>
+</body>
+</html>
