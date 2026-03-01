@@ -12,8 +12,8 @@
                     colors: {
                         ijo: {
                             light: '#d1fae5',
-                            DEFAULT: '#10b981', // Emerald 500
-                            dark: '#047857', // Emerald 700
+                            DEFAULT: '#10b981',
+                            dark: '#047857',
                         }
                     }
                 }
@@ -21,7 +21,6 @@
         }
     </script>
     <style>
-        /* Sedikit custom CSS agar slider / range input terlihat lucu dan senada */
         input[type=range] {
             accent-color: #10b981;
         }
@@ -154,7 +153,6 @@
     </div>
 
     <script>
-        // Update nama file saat dipilih
         document.getElementById('csvFile').addEventListener('change', function(e) {
             let fileName = e.target.files[0] ? e.target.files[0].name : "Pilih file CSV...";
             document.getElementById('fileNameDisplay').innerText = fileName;
@@ -213,19 +211,19 @@
                 if (!response.ok) throw new Error("Gagal terhubung ke server backend.");
                 const result = await response.json();
 
-                // Tampilkan Insight
+
                 const insightEl = document.getElementById('insightArea');
                 insightEl.innerHTML = `<strong>💡 Insight Data Mining:</strong> <br> ${result.insight}`;
                 insightEl.classList.remove('hidden');
 
-                // Sembunyikan empty state, munculkan tabel
+
                 document.getElementById('emptyState').style.display = 'none';
                 document.getElementById('tabelHasil').style.display = 'table';
 
                 const tbody = document.getElementById('bodyTabel');
                 tbody.innerHTML = ""; 
                 
-                // Warna pastel imut untuk cluster Tailwind (Green, Yellow, Blue pastel)
+
                 const clusterStyles = [
                     "bg-green-100 text-green-800", 
                     "bg-amber-100 text-amber-800", 
